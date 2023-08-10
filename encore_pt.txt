@@ -1,0 +1,783 @@
+***************
+Cabeçalho
+***************
+
+00 Começa com SCOW (magic)
+01 "
+02 "
+03 "
+04 C4 (parece que faz parte do "magic"), foi encontrado também C2, para versões mais antigas.
+05 Zeros ?
+...
+28 20_04 ?
+29 "
+2a Versão ?
+	17 4.2.1
+	1B 4.5.0
+	24 5.0.2
+2b ?
+2c f0_00
+2d "
+2e Número de LINE (sistemas)
+2f "
+30 Número de PAGE (páginas)
+31 "
+32 Pautas por sistema
+33 Pautas por sistema (repeteco?)
+34 Número de MEAS (compassos)
+35 "
+36 " ?
+37 " ?
+38 Anacruses presente no início (1 ou 0)
+...
+c2 Começa blocos de configuração dos instrumentos, para cada pauta
+...
+
+**********************
+Organização dos blocos de instrumentos
+**********************
+00 'T'
+01 'K'
+02 '0' ?
+03 '0' ?
+04 Tamanho do bloco de instrumento (2 baites) 
+  	242 baites: Latin-1
+	2158 baites: UCS-2
+05 "
+06
+07
+08 Início do texto, terminado por nulo (UCS-2 ou Latin-1)
+...
+
+
+-------------------------------------------------------------------------------------------------
+A seguir, existem rótulos em ASCII, os quais servem de guia para encontrar os objetos (entidades).
+
+- PAGE: informações sobre páginas;
+- LINE: informações sobre linhas;
+- MEAS: informação musical, para cada compasso, contém todas as vozes dos sistemas (é isso o que importa, afinal!).
+- TITL: textos diversos de título, compositor, cabeçalho, rodapé, etc.
+- TEXT: textos personalizados flutuantes dentro da música.
+
+
+***************
+Estrutura PAGE
+***************
+... (Não importa)
+
+
+***************
+Estrutura LINE
+***************
+00 Tipo de linha ('8', 'V', 't', ?): simples, dupla, tripla, múltipla (22 baites de cabeçalho geral).
+...
+10 Número de compassos na linha
+...
+16 Início das pautas, 30 baites por bloco. Ler sucessivamente, até o número de pautas indicado no cabeçalho.
+...
+
+**********************
+Organização das pautas
+**********************
+00 Lixo, até o 07 ?
+...
+08
+09 Claves
+	00 Sol
+	01 Fá
+	02 Dó 3a linha
+	03 Dó 4a linha
+	04 Sol oitava acima
+	05 Sol oitava abaixo
+	06 Fá oitava abaixo
+	07 Percussão
+	08 Tablatura
+0a Armadura
+	00 Dó
+	01 Fá
+	02 SiB
+	03 MiB
+	04 LáB
+	05 RéB
+	06 SolB
+	07 DoB
+	08 Sol
+	09 Ré
+	10 Lá
+	11 Mi
+	12 Si
+	13 FaS
+	14 DoS
+0b Índice da pauta, dentro da página, independente do sistema
+0c 
+0d
+0e
+0f Tipo de pauta
+	00 5 linhas, percussão ou não
+	01 Tablatura
+	02 Ritmo
+10 Índice da pauta, dentro do sistema
+11 idem ?
+...
+16 Lixo, até o final ?
+...
+1d
+
+***************
+Estrutura MEAS
+***************
+00 Quantos baites de dados para ler após 'cabeçalho'
+01
+02
+03
+04 Andamento (bpm)
+05 
+06 Compasso
+	00 forma fracionária
+	63('c') símbolo C, equivalente a 4/4
+	43('C') símbolo C cortado, equivalente a 2/2
+07
+08 Compasso, 4 baites
+	f0_00_e0_01 2/4
+	f0_00_d0_02 3/4
+	f0_00_c0_03 4/4
+	68_01_d0_02 6/8
+	... ?
+...
+0c Compasso, numerador
+0d Compasso, denominador
+0e
+0f Armadura? (tipo de barra do compasso, no início também afeta: 06 em vez de 00)
+	2d Dó
+	39 Fá, Sol
+	3f SiB, Ré
+	45 MiB, Lá
+	4b LáB, Mi
+	...
+10 Tipo de barra do compasso, no início.
+	00 simples
+	01 fim
+	02 volta
+	03 dupla
+	08 tracejada
+	ff vazia
+11 Tipo de barra do compasso, no final.
+	00 simples
+	04 volta
+	05 fim
+	06 dupla
+	08 tracejada
+	ff vazia
+12 00 ou C0 (quando há alternativa de repetições; e quando tem texto, aí é que a coisa complica!) 
+13 Alternativa de repetições (1-a casa, 2-a casa...), cada bit representa a vez. 
+	00 sem nada
+	01 1-a vez
+	02 2-a vez
+	04 3-a vez
+	08 4-a vez
+	10 5-a vez
+	20 6-a vez
+14 Armadura afeta
+15 " ?
+16 00 ou 08 (quando há alternativa de repetições)
+17 00 ou 01 (quando há alternativa de repetições)
+18 Armadura afeta (às vezes: sem ser no primeiro compasso da linha)
+...
+1e Marcações de Coda, Segno, etc.
+	00_00_00 sem nada
+	80_0b_58 Da Capo e Coda
+	81_0b_5d Del Segno e Coda
+	82_0b_5f Da Capo e Fim
+	83_0b_84 Del Segno e Fim
+	84_0b_6f Del Segno
+	86_0b_82 Fim
+	87_0b_7c Da Capo
+	88_0b_06 Segno
+	89_0b_06 Coda
+1f "
+20 "
+...	
+24 Armadura afeta, barra de compasso final e inicial afetam
+...
+39 Fim do cabeçalho do compasso?
+40 Início dos objetos
+	00_00 Existem objetos
+	ff_ff Não existe nenhum
+"
+
+***********************
+Organização dos objetos
+***********************
+00 Indicador de tipo (nibble mais significativo) e de voz (nibble menos significativo)
+	10 Clave
+	20 Armadura
+	30 Ligadura de duração
+	40 Conector de colcheias, semicolcheias, fusas, semifusas, etc. 
+	50 Símbolos flutuantes: ligadura de expressão, segno, coda, fermata, etc.
+	60 Canto
+	70 Cifra
+	80 Pausa
+	90 Nota
+01 Tamanho do objeto, inclusive o indicador de tipo e voz, anterior.
+02 Pauta
+	00 1-a pauta
+	01 2-a pauta
+	03 3-a pauta
+	... e assim por diante.
+... ************************************************
+... Informação interna do objeto, de acordo com tipo
+... ************************************************
+?? termina com ff_ff, antes do próximo MEAS
+?? "
+
+
+*****************
+Objeto: clave (10)
+*****************
+00 Clave
+	00 Sol
+	01 Fá
+	02 Dó 3a linha
+	03 Dó 4a linha
+	04 Sol oitava acima
+	05 Sol oitava abaixo
+	06 Fá oitava abaixo
+...
+05 Posição horizontal
+...
+0c
+
+
+*****************
+Objeto: armadura (20)
+*****************
+00 Armadura
+	00 Dó
+	01 Fá
+	02 SiB
+	03 MiB
+	04 LáB
+	05 RéB
+	06 SolB
+	07 DoB
+	08 Sol
+	09 Ré
+	10 Lá
+	11 Mi
+	12 Si
+	13 FaS
+	14 DoS
+...
+05	Tonalidade anterior?
+06	Tonalidade atual (mesmo que armadura)?
+...
+0f
+
+
+*****************
+Objeto: ligadura de duração (30)
+*****************
+00
+...
+05 Posição horizontal
+...
+0e
+
+
+*****************
+Objeto: conector de colcheias, etc (40)
+*****************
+Anotação de Leandro:
+00 Quantidade de sub-objetos
+01
+02
+03
+04 Início dos sub-objetos (16 bytes cada)
+...
+0x04 + (0x00 * 16) Finalização do conector (7 bytes)
+
+*****************
+Objeto: símbolo flutuante (50)
+*****************
+00 Tipo
+	10 Oitava acima
+	11 Fim de oitava acima
+	12 Oitava abaixo
+	13 Fim de oitava abaixo
+	19 Caixa
+	1a Caixa arredondada
+	1b Elipse
+	1c Linha
+	1d Dinâmicas: crescendo / decrescendo ("hairpins")
+	1e Texto personalizável (cresc, decresc, Largo, etc.)
+	1f Pedal (extendido)
+	21 Ligadura de expressão (horizontal)
+	22 Glissando, fino (ou extensão de trinado?)
+	23 Ligadura de acorde (vertical)
+	24 Colchete
+	25 Meio pedal (extendido)
+	26 Barra de guitarra, extendida
+	28 "Bend" de guitarra, com aliviar, curvo com seta
+	29 "Bend" de guitarra, curvo com seta
+	2a "Pre-bend" de guitarra, com seta
+	2b "Pre-bend" de guitarra, com seta, com aliviar
+	2c Sustentar de guitarra
+	2d Trinado extendido, de guitarra (tipo trêmulo) 
+	2e Vibrato extendido, de guitarra
+	2f Trêmulo extendido, de guitarra
+	30 "Bend" de guitarra, 2 linhas
+	31 Parêntesis
+	32 Indicador de tempo
+	34 Controle MIDI
+	35 Trinado extendido, fino
+	36 Glissando, grosso (ou extensão de trilo?)
+	37 Trinado extendido, grosso
+	80 ppp (dinâmicas)
+	81 pp
+	82 p
+	83 mp
+	84 mf
+	85 f
+	86 ff
+	87 fff
+	88 sfz
+	89 sffz
+	8a fp
+	a2 Segno
+	a3 Repetição de compasso (símbolo %)
+	a5 Pedal embaixo
+	a6 Coda
+	a8 Respiração (vírgula)
+	a7 Barra dupla (símbolo //)
+	a9 Pedal em cima
+	aa fz
+	ab sf
+	ac Bemol
+	ad Sustenido
+	ae Bequadro
+	af Trêmulo 3
+	b0 Trinado
+	b1 Trinado bemol
+	b2 Trinado sustenido
+	b3 Trinado bequadro
+	b4 Grupeto
+	b5 Onda
+	b6 Mordente invertido
+	b7 Mordente duplo
+	b8 Mordente duplo invertido
+	b9 Numerozinho 1
+	ba Numerozinho 2
+	bb Numerozinho 3
+	bc Numerozinho 4
+	bd Numerozinho 5
+	be Acento (>)
+	bf Acento_forte-tenuto
+	c0 Acento_forte-stacato
+	c1 Stacato-acento_forte
+	c2 Stacato-acento
+	c3 Acento_forte (acima)
+	c4 Arco para cima
+	c5 Arco para baixo
+	c6 Acento_forte (abaixo)
+	c7 Parado
+	c8 Traço horizontal (tenuto)
+	c9 Ponto (stacato)
+	ca Harmônico 1
+	cb Harmônico 2
+	cc Fermata
+	cd Fermata invertida
+	ce Tenuto-acento
+	cf Acento-stacato
+	d0 Stacato-tenuto
+	d1 Tenuto-stacato
+	d2 Tenuto-Acento_forte
+	d3 Acento-tenuto
+	d4 Stacatíssimo (acima)
+	d5 Stacatíssimo (abaixo)
+	d6 Acento-stacatíssimo
+	d7 Stacatíssimo-acento
+	d8 Tenuto-stacatíssimo
+	d9 Stacatíssimo-tenuto
+	da Grupeto invertido
+	db Mordente
+	dc Parado espesso
+	dd Dedo polegar, de guitarra
+	de Dedo indicador
+	df Dedo médio
+	e0 Dedo anular
+	e1 Dedo mínimo
+	e2 "Pull-off"
+	e3 "Hammer-on"
+	e4 "Tapping"
+	e5 Corda 1
+	e6 Corda 2
+	e7 Corda 3
+	e8 Corda 4
+	e9 Corda 5
+	ea Corda 6
+	eb Corda 7
+	ec Corda 8
+	ed Trêmulo 1
+	ee Trêmulo 2
+	ef Trêmulo 4
+	f0 Afinar acima
+	f1 Afinar abaixo
+	f2 Numerozinho 0
+	f3 Baqueta
+	f4 Vassoura
+	f5 Baqueta de feltro duro
+	f6 Baqueta de feltro macio
+	f7 Centro do tambor
+	f8 Borda do tambor
+	f9 Centro do prato
+	fa Borda do prato
+...
+05 Posição horizontal
+06
+07 Posição vertical (altura absoluta?)
+...
+0d Fim da extensão (quantos compassos à frente)
+0e
+0f Posição horizontal da extensão
+...
+15 Espelhamento horizontal (mascarar com 0x01) ou vertical (mascarar com 0x02)
+	0 posição normal (cresc.)
+	1 espelhamento horizontal (decresc.)
+	2 espelhamento vertical (cresc.)
+	3 espelhamento horizontal e vertical (decresc.)
+...
+17 Indicador de tempo: duração 1 (mascarar com 0x7F, pois o bit mais significativo indica nota pontuada)
+	?0 semibreve
+	?1 mínima
+	?2 semínima
+	?3 colcheia
+	?4 semicolcheia
+	?5 fusa
+18 Indicador de tempo: duração 2, para listesso (mascarar com 0x7F, pois o bit mais significativo indica nota pontuada)
+	?0 semibreve
+	?1 mínima
+	?2 semínima
+	?3 colcheia
+	?4 semicolcheia
+	?5 fusa
+19 Tempo, em bpm. Com listesso, seu valor é nulo.
+...
+1b Índice indicador do texto (buscar na estrutura TEXT)
+
+
+*****************
+Objeto: canto (60)
+*****************
+...
+05 Posição horizontal
+...
+0f Texto, terminado por 0 (UCS-2 ou Latin1)
+...
+
+
+*****************
+Objeto: cifra (70)
+*****************
+00 Tônica
+	00 major (ou seja, sem nada junto com a raiz)
+	01 m
+	02 +
+	03 dim
+	04 dim7
+	05 5
+	06 6
+	07 6/9
+	08 (add2)
+	09 (add9)
+	0a (omit3)
+	0b (omit5)
+	0c maj7
+	0d maj7(b5)
+	0e maj7(6/9)
+	0f maj7(+5)
+	11 maj9
+	12 maj9(b5)
+	13 maj9(+5)
+	15 maj13
+	16 maj13(b5)
+	18 7
+	19 7(b5)
+	1a 7(b9)
+	1b 7(#9)
+	20 9
+	21 9(b5)
+	23 11
+	24 13
+	25 13(b5)
+	26 13(b9)
+	27 13(#9)
+	29 +7
+	2a +7(b9)
+	2b +7(#9)
+	2c +9
+	2d sus2
+	2e sus2,sus4
+	2f sus4
+	30 7sus4
+	31 9sus4
+	32 13sus4
+	33 m(add2)
+	34 m(add9)
+	35 m6
+	36 m6/9
+	37 m7
+	38 m(maj7)
+	39 m7(b5)
+	3a m7(add4)
+	3b m7(add11)
+	3c m9
+	3d m(maj9)
+	3e m11
+	3f m13
+
+01 Tipo (bit 0 indica Personalização, bit 1 indica Baixo)
+	00 Raiz
+	01 Raiz_Personalizado
+	02 Raiz/Baixo 
+	03 Raiz_Personalizado/Baixo 
+	11 Personalizado
+...
+05 Posição horizontal
+06
+07 Raiz
+	00 c (Dó)
+	01 d (Ré)
+	02 e (Mi)
+	03 f (Fá)
+	04 g (Sol)
+	05 a (Lá)
+	06 b (Si)
+
+	10 cis
+	...
+	16 bis
+
+	20 ces
+	...
+	26 bis
+08 Baixo
+	idem ao Raiz
+09 Começa texto personalizado, terminado por 0 (quando codificado por UCS-2). 
+...
+0b Começa texto personalizado, terminado por 0 (quando codificado por Latin-1). 
+
+
+*****************
+Objeto: pausa e nota (80) e (90)
+*****************
+00 Duração (mascarar com 0x0F) 
+	?0 breve
+	?1 semibreve 
+	?2 mínima 
+	?3 semínima
+	?4 colcheia
+	?5 semicolcheia
+	?6 fusa
+	?7 semifusa
+	?8 quadrifusa
+   Tipo da cabeça de nota (mascarar com 0xF0)
+	0? oval (normal)
+	1? losango
+	3? quadrado
+	4? xis
+	6? mais
+	7? losango retangular (aparece em linha de ritmo)
+01 Notas de ornamento (mascarar com 0x30)
+	00 Nota normal
+	10 Nota normal, antes de outra não normal ?
+	20 Aciacatura ?
+	30 Pode ser apogiatura
+02 Notas de ornamento (mascarar com 0x05) 
+	00 Pode ser normal ou apogiatura
+	01 Apogiatura
+	04 Aciacatura
+03
+04
+05 Posição horizontal da cabeça (0 até 100?)
+06
+07 Altura relativa, posição vertical da cabeça (-127 até 128) 
+	...
+	-2 Lá
+	-1 Si
+	00 Dó
+	...
+	 7 Si
+	...
+08 Quiáltera: x:y, onde x é o nibble mais significativo (0xF0) e y é o nibble menos significativo (0x0F).
+09 Pontuação de aumento (só os dois bits menos significativos, mascarar com 0x03) e
+   Indicador de adorno acima (mascarar com 0x80).
+   Indicador de adorno abaixo (mascarar com 0x40).
+0a Altura absoluta
+	0 Dó 0
+	...
+	12 Dó 1
+	...
+	48 Dó 4
+	...
+	60 Dó 5
+	...
+0b Duração real (2 baites) ?
+0c " ?
+0d (A partir daqui, somente as notas tem... será?)
+0e
+0f
+10 Acidente (nibble menos significativo: mascarar com 0x0F)
+	?0 sem nada
+	?1 sustenido
+	?2 bemol
+	?3 bequadro
+	?4 dobrado sustenido
+	?5 dobrado bemol
+   Espelhamento da cabeça? (nibble mais significativo: & 0xF0)
+	0? normal
+	8? espelhamento vertical
+11
+12
+13 Adorno acima
+	00 Bemol
+	01 Sustenido
+	02 Bequadro
+	03 Trêmulo 3
+	04 Trinado
+	05 Trinado bemol
+	06 Trinado sustenido
+	07 Trinado bequadro
+	08 Grupeto
+	09 Onda
+	0a Mordente
+	0b Mordente invertido
+	0c Mordente duplo
+	0d Numerozinho 1
+	0e Numerozinho 2
+	0f Numerozinho 3
+	10 Numerozinho 4
+	11 Numerozinho 5
+	12 Acento 
+	13 Acento forte
+	14 Stacato-acento forte (para baixo)
+	15 Stacato-acento forte
+	16 Acento-stacato (para baixo)
+	17 Acento-stacato
+	18 Arco para cima
+	19 Arco para baixo
+	1a Acento forte (para baixo)
+	1b Parado (+)
+	1c Tenuto
+	1d Stacato 
+	1e Harmônico 1
+	1f Harmônico 2
+	20 Fermata
+	21 Fermata (para baixo)
+	22 Acento-tenuto (para baixo)
+	23 Acento-tenuto
+	24 Stacato-tenuto
+	25 Stacato-tenuto (para baixo)
+	26 Tenuto-Acento forte (para baixo)
+	27 Tenuto-Acento forte
+	28 Stacatíssimo
+	29 Stacatíssimo (para baixo)
+	2a Stacatíssimo-acento (para baixo)
+	2b Stacatíssimo-acento
+	2c Stacatíssimo-tenuto (para baixo)
+	2d Stacatíssimo-tenuto
+	2e Grupeto invertido
+	2f Mordente duplo invertido
+	30 Parado espesso (+, grosso)
+	31 Dedo polegar
+	32 Dedo indicador
+	33 Dedo médio
+	34 Dedo anular
+	35 Dedo mínimo
+	36 Pull-off
+	37 Hammer
+	38 Tap
+	39 Corda 1
+	3a Corda 2
+	3b Corda 3
+	3c Corda 4
+	3d Corda 5
+	3e Corda 6
+	3f Corda 7
+	40 Corda 8
+	41 Trêmulo 1
+	42 Trêmulo 2
+	43 Trêmulo 4
+	44 Afinar abaixo
+	45 Afinar acima
+	46 Numerozinho 0
+14
+15 Adorno abaixo
+	idem ao acima
+16
+17
+18
+
+
+***************
+Estrutura TITL
+***************
+00 Tamanho da estrutura
+01 "
+...
+06 Início dos blocos de texto
+...
+
+Cada bloco de texto tem a seguinte estrutura:
+------------------------------------
+00 Cabeçalho (20 baites)
+...
+1E Texto em UCS-2LE (se tamanho maior que 20000, senão é em LATIN-1), terminado por nulo.
+   Bytes de espaço: 513*2 (UCS-2) ou 66 (LATIN-1).
+...
+------------------------------------
+
+São 20 blocos de texto, na seguinte ordem:
+  - Título
+  - Subtítulo
+  - Subtítulo 2
+  - Instruções (à esquerda)
+  - Instruções 2
+  - Instruções 3
+  - Compositor (à direita) 
+  - Compositor 2
+  - Compositor 3
+  - Compositor 4
+  - Cabeçalho (#p)
+  - Cabeçalho 2
+  - Rodapé (à esquerda?)
+  - Rodapé (à direita?)
+  - Copyright
+  - Copyright 2
+  - Copyright 3
+  - Copyright 4
+  - Copyright 5
+  - Copyright 6
+
+
+***************
+Estrutura TEXT
+***************
+00 Tamanho da estrutura (2 baites ?)
+01 "
+02
+03
+04 (2 baites) ? 
+05 " ?
+06 Número de blocos de texto (2 baites)
+07 "
+08 Tamanho da estrutura, só os textos (2 baites ?)
+09 "
+0a Início dos textos
+...
+
+***************
+Bloco de texto
+***************
+00 
+...
+12 Início do texto, cada bloco terminando em 00_00 (ou 04, para Latin1)

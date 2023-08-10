@@ -12,7 +12,7 @@ namespace Priestenc
     {
         private int numCompassos;
         private int numInstrumentos = 0;
-        private Instrumento[] instrumentos = new Instrumento[64];
+        public Instrumento[] instrumentos = new Instrumento[64];
         public Partitura()
         {
             numCompassos = 4;
@@ -23,6 +23,10 @@ namespace Priestenc
             instrumentos = new Instrumento[argNumInstrumentos];
             numCompassos = argNumCompassos;
         }
+        public int ObterNumCompassos()
+        {
+            return numCompassos;
+        }
         public void DefinirCompassos(int argNumCompassos)
         {
             numCompassos = argNumCompassos;
@@ -32,6 +36,25 @@ namespace Priestenc
             Instrumento novoInstrumento = new Instrumento(this, argNome);
             instrumentos[numInstrumentos++] = novoInstrumento;
             return novoInstrumento;
+        }
+        public Compasso[] AdicionarCompasso(int argBPM)
+        {
+            int qtdCompassos = 0;
+            foreach (Instrumento instrumento in instrumentos)
+            {
+                qtdCompassos += instrumento.numPautas;
+            }
+            Compasso[] compassosAdicionados = new Compasso[qtdCompassos];
+            int numCompassos = 0;
+            foreach (Instrumento instrumento in instrumentos)
+            {
+                Compasso[] novosCompassos = instrumento.AdicionarCompasso(argBPM);
+                for (int i = 0; i < novosCompassos.Length; i++)
+                {
+                    compassosAdicionados[numCompassos++] = novosCompassos[i];
+                }
+            }
+            return compassosAdicionados;
         }
         public void Debug(int argNivel = 0)
         {

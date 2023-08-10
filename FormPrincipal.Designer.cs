@@ -34,20 +34,26 @@ namespace Priestenc
             // 
             // textBoxLog
             // 
-            this.textBoxLog.Location = new System.Drawing.Point(469, 12);
+            this.textBoxLog.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBoxLog.Font = new System.Drawing.Font("Lucida Console", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBoxLog.Location = new System.Drawing.Point(379, 12);
             this.textBoxLog.Multiline = true;
             this.textBoxLog.Name = "textBoxLog";
             this.textBoxLog.ReadOnly = true;
-            this.textBoxLog.Size = new System.Drawing.Size(319, 426);
+            this.textBoxLog.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.textBoxLog.Size = new System.Drawing.Size(694, 559);
             this.textBoxLog.TabIndex = 0;
+            this.textBoxLog.Text = "00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f 10 11 12 13 14 15 16 17 18 19 1a " +
+    "1b 1c 1d 1e 1f";
             // 
-            // telaPrincipal
+            // FormPrincipal
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(1085, 583);
             this.Controls.Add(this.textBoxLog);
-            this.Name = "telaPrincipal";
+            this.Name = "FormPrincipal";
             this.Text = "Priestenc";
             this.Load += new System.EventHandler(this.telaPrincipal_Load);
             this.ResumeLayout(false);
